@@ -1,0 +1,11 @@
+{
+  "name": "workflow-automation-builder",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22.18"
+  }
+}

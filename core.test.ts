@@ -1,0 +1,4 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import {order,execute} from './core.ts';
+test('reject cycles before executing',()=>{assert.throws(()=>order([{id:'a',after:['b'],run:async()=>0},{id:'b',after:['a'],run:async()=>0}]),/cycle/)});
+test('dependency order and retries',async()=>{let tries=0;const seen:string[]=[];const r=await execute([{id:'b',after:['a'],run:async()=>{seen.push('b')}},{id:'a',after:[],run:async()=>{if(++tries<2)throw Error();seen.push('a')}}]);assert.equal(r.status,'success');assert.deepEqual(seen,['a','b']);assert.equal(r.history.length,3)});
+test('stop after exhausted retries',async()=>{let called=false;const r=await execute([{id:'a',after:[],run:async()=>{throw Error()}},{id:'b',after:['a'],run:async()=>{called=true}}],2);assert.equal(r.status,'failed');assert.equal(r.history.length,2);assert.equal(called,false)});
