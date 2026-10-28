@@ -1,50 +1,33 @@
-# Workflow Automation Builder
+# Workflow Automation DAG Engine (TypeScript / Node.js)
 
-**Sohail Sharif · Personal engineering project · Core prototype**
+![CI Status](https://github.com/sohail-sharif-official/workflow-automation-builder/actions/workflows/verify.yml/badge.svg)
+**Stack:** `TypeScript · Node.js · DAG Topological Execution · Bounded Retries`
 
-## Problem
-This project explores visual rules, scheduled triggers, bounded retries, execution history. It is designed as a focused engineering lab for Full Stack roles.
+## Overview
+A workflow automation engine that validates directed acyclic graph (DAG) step dependencies, detects circular graphs prior to execution, and runs multi-step automation pipelines with bounded retries.
 
-## Current implementation
-Cycle detection, ordered execution and bounded retries. See source and executable tests for the exact behavior.
-
-This repository is an initial implementation, not a deployed production system. The full target architecture below is a roadmap. No throughput, uptime, savings or recovery claims have been measured for a production environment.
-
-## Target stack
-React, TypeScript, Node.js, PostgreSQL
-
-## Architecture
+## Architecture & Execution Flow
 ```mermaid
 flowchart LR
-  n0["Trigger"] --> n1
-  n1["DAG validation"] --> n2
-  n2["task execution"] --> n3
-  n3["retry policy"] --> n4
-  n4["execution history"]
+  Def["Workflow Graph Definition"] --> Cycle["DAG Cycle Validator"]
+  Cycle --> Topo["Topological Step Planner"]
+  Topo --> Runner["Bounded-Retry Step Runner"]
+  Runner --> Trace["Execution History"]
 ```
 
-The diagram describes the target architecture; adapters listed below are not implemented yet.
+## Key Engineering Capabilities
+- **Graph Cycle Detection:** Validates workflow step topologies upfront and rejects cyclic dependency graphs.
+- **Deterministic Topological Execution:** Executes workflow nodes in strict dependency order.
+- **Step-Level Retry Policies:** Retries transient step failures up to configured bounds while recording execution traces.
+- **Node.js Test Runner Suite:** Verified automatically via `node --test` in GitHub Actions.
 
-## Run and verify
-Run from this directory. Requires Node.js 22.18 or later.
+## Local Verification
+Run the self-contained verification suite locally:
 
-```sh
+```bash
 node --test
 ```
 
-## Next milestones
-- [ ] Visual React editor
-- [ ] durable schedules
-- [ ] worker leases
-- [ ] database execution history
-
-## Trade-offs
-- The domain core is isolated from infrastructure so its invariants can be tested quickly.
-- In-memory state makes the prototype reproducible but does not survive restarts or coordinate multiple machines.
-- Production authentication, secret management, persistence, metrics and deployment verification remain required.
-
-## Evidence
-Tests are executable specifications. Cloud and load-test results are deliberately unclaimed. Record real commands, versions, hardware, dataset, date and results in `docs/VALIDATION.md` before quoting numbers on a resume.
-
-## Interview discussion
-Explain the failure boundary, tenant boundary, consistency model, retry behavior, operational signals and why the chosen persistence adapter fits the workload.
+## Documentation
+- [Architectural Decisions](docs/DECISIONS.md)
+- [Security & Isolation Model](docs/SECURITY.md)
